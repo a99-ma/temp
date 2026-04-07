@@ -1,0 +1,275 @@
+/* Restaurant Menu – thème chaleureux */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@400;500;600&display=swap');
+
+.menu-page {
+  --menu-bg: #faf8f5;
+  --menu-cream: #f5f0e8;
+  --menu-ink: #2c2825;
+  --menu-muted: #6b6560;
+  --menu-accent: #a0522d;
+  --menu-accent-hover: #8b4513;
+  --menu-border: #e8e2d9;
+  --menu-card-bg: #ffffff;
+  --menu-shadow: 0 4px 20px rgba(44, 40, 37, 0.06);
+  --menu-shadow-hover: 0 12px 40px rgba(44, 40, 37, 0.12);
+  min-height: 100vh;
+  background: var(--menu-bg);
+  font-family: 'Source Sans 3', sans-serif;
+  color: var(--menu-ink);
+}
+
+.menu-header {
+  background: linear-gradient(180deg, var(--menu-ink) 0%, #1a1816 100%);
+  color: var(--menu-cream);
+  padding: 2rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.menu-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.25rem;
+}
+
+.menu-header p {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  margin: 0;
+}
+
+/* Section: Consulter le menu */
+.menu-hero {
+  max-width: 900px;
+  margin: -1.5rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.menu-hero-card {
+  background: var(--menu-card-bg);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--menu-shadow);
+  border: 1px solid var(--menu-border);
+}
+
+.menu-hero-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--menu-ink);
+  margin: 0 0 0.5rem;
+}
+
+.menu-hero-card p {
+  color: var(--menu-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Section: Filtrer les plats */
+.menu-filters-wrap {
+  max-width: 1100px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.menu-filters-card {
+  background: var(--menu-card-bg);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: var(--menu-shadow);
+  border: 1px solid var(--menu-border);
+}
+
+.menu-filters-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--menu-ink);
+  margin: 0 0 1rem;
+}
+
+.menu-search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.menu-search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--menu-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--menu-ink);
+  background: var(--menu-bg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.menu-search-input::placeholder {
+  color: var(--menu-muted);
+}
+
+.menu-search-input:focus {
+  outline: none;
+  border-color: var(--menu-accent);
+  box-shadow: 0 0 0 3px rgba(160, 82, 45, 0.15);
+}
+
+.menu-category-select {
+  padding: 0.65rem 2rem 0.65rem 1rem;
+  border: 1px solid var(--menu-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--menu-ink);
+  background: var(--menu-bg);
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.menu-diet-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.menu-diet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--menu-border);
+  background: var(--menu-bg);
+  color: var(--menu-muted);
+  transition: all 0.2s;
+}
+
+.menu-diet-chip:hover {
+  border-color: var(--menu-accent);
+  color: var(--menu-accent);
+}
+
+.menu-diet-chip.active {
+  background: var(--menu-accent);
+  border-color: var(--menu-accent);
+  color: #fff;
+}
+
+.menu-diet-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Grille des plats */
+.menu-content {
+  max-width: 1100px;
+  margin: 2rem auto 3rem;
+  padding: 0 1.5rem;
+}
+
+.menu-plats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.menu-plat-card {
+  background: var(--menu-card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--menu-border);
+  box-shadow: var(--menu-shadow);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.menu-plat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--menu-shadow-hover);
+}
+
+.menu-plat-image {
+  height: 180px;
+  background: linear-gradient(135deg, var(--menu-cream) 0%, #e8e2d9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--menu-muted);
+  font-size: 2.5rem;
+}
+
+.menu-plat-body {
+  padding: 1.25rem;
+}
+
+.menu-plat-body h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--menu-ink);
+}
+
+.menu-plat-desc {
+  font-size: 0.9rem;
+  color: var(--menu-muted);
+  line-height: 1.45;
+  margin: 0 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.menu-plat-price {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--menu-accent);
+  margin: 0 0 0.5rem;
+}
+
+.menu-plat-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.menu-plat-tag {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: var(--menu-cream);
+  color: var(--menu-muted);
+}
+
+.menu-loading,
+.menu-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--menu-muted);
+}
+
+.menu-loading {
+  font-size: 1rem;
+}
+
+.menu-empty {
+  font-size: 1.05rem;
+}
+
+@media (max-width: 640px) {
+  .menu-plats-grid {
+    grid-template-columns: 1fr;
+  }
+}
