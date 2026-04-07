@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-// Import de VOTRE CartContext !
 import { useCart } from '../context/CartContext'
 
 const API = 'http://localhost:8000/api'
@@ -23,17 +22,16 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState('')
   const [halal, setHalal] = useState(false)
   const [vegetarien, setVegetarien] = useState(false)
-  const [sansGluten, setSansGluten] = useState(false)
+  const[sansGluten, setSansGluten] = useState(false)
   const [search, setSearch] = useState('')
 
   // UI States
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [orderType, setOrderType] = useState('Emporter')
+  const[orderType, setOrderType] = useState('Emporter')
 
-  // ON UTILISE ICI LE CONTEXT (CartContext.jsx)
+  // ON UTILISE ICI LE CONTEXT
   const { cart, addToCart, updateQuantity, removeFromCart, getTotalItems } = useCart()
 
-  // Calcul du nombre de produits et totaux avec les variables de votre Context (`quantity`)
   const cartItemCount = getTotalItems()
   const subtotal = cart.reduce((sum, item) => sum + (parseFloat(item.prix) * item.quantity), 0)
   const fees = orderType === 'Livraison' ? 15.00 : 0
@@ -41,14 +39,14 @@ export default function Home() {
 
   useEffect(() => {
     axios.get(`${API}/categories`).then(res => setCategories(res.data.data))
-  }, [])
+  },[])
 
   useEffect(() => {
     if (window.$) {
       window.$('#customCarousel1').carousel({ interval: 5000, ride: 'carousel' })
       window.$('.client_owl-carousel').owlCarousel({ loop: true, margin: 20, nav: true, responsive: { 0: { items: 1 }, 600: { items: 2 } } })
     }
-  }, [])
+  },[])
 
   useEffect(() => {
     const fetchPlats = (showLoader = false) => {
@@ -69,7 +67,6 @@ export default function Home() {
     return () => clearInterval(intervalId)
   }, [activeCategory, halal, vegetarien, sansGluten, search])
 
-  // LA FONCTION QUI FAIT LE SMOOTH SCROLL (Nécessite que l'ID soit présent sur les sections !)
   const scrollTo = (id) => {
     const el = document.getElementById(id)
     if (el) el.scrollIntoView({ behavior: 'smooth' })
@@ -78,10 +75,10 @@ export default function Home() {
   return (
     <div style={{ position: 'relative' }}>
       
-      {/* Navbar intégrée avec scrollTo (la Navbar lit le badge via le context) */}
+      {/* On relie la Navbar pour que le clic sur son icône ouvre le Panier */}
       <Navbar scrollTo={scrollTo} onOpenCart={() => setIsCartOpen(true)} />
 
-      {/* BOUTON FLOTTANT PANIER MOBILE / TIROIR */}
+      {/* BOUTON FLOTTANT (s'affiche uniquement si on a qqch dans le panier) */}
       {cartItemCount > 0 && !isCartOpen && (
         <div onClick={() => setIsCartOpen(true)} style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 9999, cursor: 'pointer' }}>
           <div style={{ position: 'relative', backgroundColor: '#ffbe33', width: '65px', height: '65px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', color: 'white' }}>
@@ -111,9 +108,27 @@ export default function Home() {
                     <small style={{ color: '#ffbe33', fontWeight: 'bold' }}>{item.prix} MAD</small>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.quantite_stock || 99)} style={{ border: '1px solid #ddd', background: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}>-</button>
+                    <button 
+                      onClick={() => updateQuantity(item.id, item.quantity - 1, item.quantite_stock || 999)} 
+                      style={{ border: '1px solid #ddd', background: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}>
+                      -
+                    </button>
                     <span style={{ fontWeight: 'bold' }}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.quantite_stock || 99)} style={{ border: '1px solid #ddd', background: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}>+</button>
+                    
+                    {/* Le bouton + se désactive avec limite de stock */}
+                    <button 
+                      onClick={() => updateQuantity(item.id, item.quantity + 1, item.quantite_stock || 999)} 
+                      disabled={item.quantity >= (item.quantite_stock || 999)}
+                      style={{ 
+                        border: '1px solid #ddd', 
+                        background: 'none', 
+                        borderRadius: '50%', 
+                        width: '24px', height: '24px', 
+                        cursor: item.quantity >= (item.quantite_stock || 999) ? 'not-allowed' : 'pointer',
+                        opacity: item.quantity >= (item.quantite_stock || 999) ? 0.4 : 1
+                      }}>
+                      +
+                    </button>
                     <button onClick={() => removeFromCart(item.id)} style={{ border: 'none', background: 'none', color: 'red', cursor: 'pointer', marginLeft: '10px' }}>🗑️</button>
                   </div>
                 </div>
@@ -197,7 +212,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ======== SECTION MENU ======== */}
+      {/* ======== SECTION MENU AVEC GESTION STOCK ======== */}
       <section id="menu-section" className="food_section layout_padding-bottom mt-5">
         <div className="container">
           <div className="heading_container heading_center">
@@ -225,7 +240,11 @@ export default function Home() {
                 {plats.length === 0 ? (
                   <div className="text-center py-5 w-100"><p>Aucun plat trouvé</p></div>
                 ) : (
-                  plats.map(plat => (
+                  plats.map(plat => {
+                    // Petite vérification pour éviter les undefined sur stock
+                    const quantite_dispo = plat.quantite_stock !== undefined ? plat.quantite_stock : 999;
+                    
+                    return (
                     <div key={plat.id} className="col-sm-6 col-lg-4 all">
                       <div className="box">
                         <div>
@@ -235,23 +254,40 @@ export default function Home() {
                           <div className="detail-box">
                             <h5>{plat.nom}</h5>
                             <p>{plat.description}</p>
-                            <div className="options">
-                              <h6>{plat.prix} MAD</h6>
-                              {plat.est_disponible ? (
+                            
+                            {/* NOUVELLE STRUCTURE QUI GERE LE STOCK */}
+                            <div className="options" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <h6 style={{ margin: 0 }}>{plat.prix} MAD</h6>
+                                {plat.est_disponible && quantite_dispo > 0 ? (
+                                  <small style={{ color: '#28a745', fontWeight: 'bold' }}>{quantite_dispo > 50 ? 'En stock' : `${quantite_dispo} en stock`}</small>
+                                ) : (
+                                  <small style={{ color: '#dc3545', fontWeight: 'bold' }}>Rupture de stock</small>
+                                )}
+                              </div>
+                              
+                              {/* BOUTON PANIER */}
+                              {plat.est_disponible && quantite_dispo > 0 ? (
                                 <a href="#" onClick={(e) => { e.preventDefault(); addToCart(plat); }}>
                                   <CartSVG />
                                 </a>
                               ) : (
-                                <a href="#" style={{ opacity: 0.4, cursor: 'not-allowed' }} onClick={(e) => e.preventDefault()}>
+                                <a href="#" style={{ opacity: 0.4, cursor: 'not-allowed', backgroundColor: '#eee', borderRadius: '50%', padding: '8px' }} onClick={(e) => e.preventDefault()} title="Rupture de stock">
                                   <CartSVG />
                                 </a>
                               )}
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '6px' }}>
+                              {plat.est_halal && <span style={{ background: '#28a745', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '11px' }}>🌙 Halal</span>}
+                              {plat.est_vegetarien && <span style={{ background: '#17a2b8', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '11px' }}>🥗 Végé</span>}
+                              {plat.est_sans_gluten && <span style={{ background: '#ffc107', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '11px' }}>🌾 S.G</span>}
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))
+                  )})
                 )}
               </div>
             </div>
@@ -259,7 +295,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ======== SECTION ABOUT (RETROUVÉE) ======== */}
+      {/* ======== SECTION ABOUT ======== */}
       <section id="about-section" className="about_section layout_padding">
         <div className="container">
           <div className="row">
@@ -281,7 +317,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ======== SECTION RESERVATION / BOOK TABLE (RETROUVÉE) ======== */}
+      {/* ======== SECTION RESERVATION ======== */}
       <section id="book-section" className="book_section layout_padding">
         <div className="container">
           <div className="heading_container">
@@ -294,8 +330,8 @@ export default function Home() {
                 <div><input type="text" className="form-control" placeholder="Phone Number" /></div>
                 <div><input type="email" className="form-control" placeholder="Your Email" /></div>
                 <div>
-                  <select className="form-control">
-                    <option value="" disabled defaultValue>How many persons?</option>
+                  <select className="form-control" defaultValue="">
+                    <option value="" disabled>How many persons?</option>
                     {[2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </div>
@@ -311,7 +347,8 @@ export default function Home() {
           </div>
         </div>
       </section>
-       {/* CLIENTS */}
+      
+       {/* ======== CLIENTS ======== */}
       <section id="clients-section" className="client_section layout_padding-bottom">
         <div className="container">
           <div className="heading_container heading_center psudo_white_primary mb_45">
@@ -340,7 +377,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
 
       <Footer />
     </div>
